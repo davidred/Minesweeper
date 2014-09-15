@@ -11,9 +11,8 @@ class Board
   def self.create_board(grid_size,num_bombs)
     board = Array.new(grid_size) { Array.new(grid_size,nil) }
     bombs_array = seed_bombs(board, num_bombs)
-    seed_board(board,bombs_array)
-
-
+    untiled_board = seed_board(board,bombs_array)
+    seed_tiles(untiled_board)
   end
 
   def self.seed_bombs(array,num_bombs)
@@ -30,9 +29,20 @@ class Board
     end
   end
 
+  def self.seed_tiles(untiled_board)
+    untiled_board.map.with_index do |row, col_idx|
+      row.map.with_index do |elem, row_idx|
+        Tile.new(elem, [col_idx, row_idx])
+      end
+    end
+  end
 
   def initialize(grid_size = GRID_SIZE, num_bombs = NUM_BOMBS)
     @board = Board.create_board(grid_size,num_bombs)
+  end
+
+  def render
+    board.each{|row| p row.map {|cell| cell.value}}
   end
 
 end

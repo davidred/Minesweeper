@@ -1,13 +1,18 @@
+#!/usr/bin/env ruby
+
 require_relative 'board'
+require 'yaml'
 
 class Minesweeper
 
   GRID_SIZE = 9
   NUM_BOMBS = 12
 
+  attr_reader :filename
   attr_accessor :game_board, :win_state
 
-  def initialize(grid_size = GRID_SIZE, num_bombs = NUM_BOMBS)
+  def initialize(filename = 'save.txt', grid_size = GRID_SIZE, num_bombs = NUM_BOMBS)
+    @filename = filename
     @game_board = Board.new(grid_size, num_bombs)
     @win_state = nil
   end
@@ -28,11 +33,22 @@ class Minesweeper
 
   def get_move
     p "enter your move: "
-    move = gets.chomp
+    move = $stdin.gets.chomp
+    if move == 's'
+      save_object = self.to_yaml
+      File.open(filename,'w') do |f|
+        f.puts(save_object)
+      end
+    end
     unless move =~ /\A[fr] \d,\d\Z/
-      puts "Invalid move, enter move type and position in form of: (r 1,2)"
-      p "enter your move: "
-      move = gets.chomp
+      if move == 's'
+        puts "You saved your game, now enter a move"
+        move = $stdin.gets.chomp
+      else
+        puts "Invalid move, enter move type and position in form of: (r 1,2)"
+        p "enter your move: "
+        move = $stdin.gets.chomp
+      end
     end
     pos = [move[2].to_i,move[4].to_i]
     move_type = move[0]
@@ -84,9 +100,22 @@ class Minesweeper
   def won?
     game_board.board.all? do |row|
       row.all? do |tile|
-        tile.show_status == "r" && tile.value != "b"
+        (tile.show_status == "r" && tile.value != "b") ||
+        (tile.show_status == 'f' && tile.value == 'b')
       end
     end
   end
 
+end
+
+if __FILE__ == $PROGRAM_NAME
+
+  contents = File.read(ARGV[0]).chomp
+  if contents.empty?
+    g = Minesweeper.new(ARGV[0])
+    g.run
+  else
+    g = YAML::load(contents)
+    g.run
+  end
 end

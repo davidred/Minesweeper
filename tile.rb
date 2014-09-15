@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 class Tile
   attr_reader :value, :position, :neighbors
   attr_accessor :show_status

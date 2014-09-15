@@ -9,7 +9,7 @@ class Board
   attr_reader :board
 
   def self.create_board(grid_size,num_bombs)
-    board = Array.new(grid_size) { Array.new(grid_size,nil) }
+    board = Array.new(grid_size) { Array.new(grid_size," ") }
     bombs_array = seed_bombs(board, num_bombs)
     untiled_board = seed_board(board,bombs_array)
     seed_tiles(untiled_board)
@@ -32,16 +32,54 @@ class Board
   def self.seed_tiles(untiled_board)
     untiled_board.map.with_index do |row, col_idx|
       row.map.with_index do |elem, row_idx|
-        Tile.new(elem, [col_idx, row_idx])
+        pos = [col_idx, row_idx]
+
+        if elem == "b"
+          Tile.new(elem, pos)
+        else
+          value = num_neighboring_bombs(untiled_board, pos)
+          Tile.new(value, pos)
+        end
       end
     end
   end
 
+  def self.num_neighboring_bombs(board, pos)
+    num_bombs = 0
+    neighbors = find_neighbors(board, pos)
+
+    neighbors.each do |pos|
+      num_bombs += 1 if board[pos[0]][pos[1]] == "b"
+    end
+
+    num_bombs
+  end
+
+  def self.find_neighbors(board, pos)
+    neighbors = []
+
+    ALL_MOVES.each do |move| #[1,-1]
+      neighbor_pos = [move[0] + pos[0], move[1] + pos[1]]
+      unless board[neighbor_pos[0]].nil? || board[neighbor_pos[0]][neighbor_pos[1]].nil?
+        neighbors << neighbor_pos
+      end
+    end
+
+    neighbors
+  end
+
+
+
+
   def initialize(grid_size = GRID_SIZE, num_bombs = NUM_BOMBS)
-    @board = Board.create_board(grid_size,num_bombs)
+    @board = Board.create_board(grid_size, num_bombs)
   end
 
   def render
+    board.each{|row| p row.map {|cell| cell.value}}
+  end
+
+  def inspect
     board.each{|row| p row.map {|cell| cell.value}}
   end
 

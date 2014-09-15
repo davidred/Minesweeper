@@ -33,20 +33,20 @@ class Board
     untiled_board.map.with_index do |row, col_idx|
       row.map.with_index do |elem, row_idx|
         pos = [col_idx, row_idx]
-
+        neighbors = find_neighbors(untiled_board, pos)
         if elem == "b"
-          Tile.new(elem, pos)
+          Tile.new(elem, pos, neighbors)
         else
-          value = num_neighboring_bombs(untiled_board, pos)
-          Tile.new(value, pos)
+          value = num_neighboring_bombs(untiled_board, pos, neighbors)
+          value = '_' unless value > 0
+          Tile.new(value, pos, neighbors)
         end
       end
     end
   end
 
-  def self.num_neighboring_bombs(board, pos)
+  def self.num_neighboring_bombs(board, pos, neighbors)
     num_bombs = 0
-    neighbors = find_neighbors(board, pos)
 
     neighbors.each do |pos|
       num_bombs += 1 if board[pos[0]][pos[1]] == "b"
@@ -70,20 +70,22 @@ class Board
     neighbors
   end
 
-
-
-
   def initialize(grid_size = GRID_SIZE, num_bombs = NUM_BOMBS)
     @board = Board.create_board(grid_size, num_bombs)
   end
 
   def render
-    board.each{|row| puts row.map {|cell| cell.value}.join("\t") }
+    board.each do |row|
+      puts row.map { |cell|
+        cell.show_status == 's' ? cell.value : cell.show_status
+      }.join("  ")
+    end
     nil
   end
 
   def inspect
-    board.each{|row| p row.map {|cell| cell.value}}
+    board.each{|row| puts row.map {|cell| cell.value}.join("  ") }
+    nil
   end
 
 end

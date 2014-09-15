@@ -60,7 +60,9 @@ class Board
 
     ALL_MOVES.each do |move| #[1,-1]
       neighbor_pos = [move[0] + pos[0], move[1] + pos[1]]
-      unless board[neighbor_pos[0]].nil? || board[neighbor_pos[0]][neighbor_pos[1]].nil?
+      unless board[neighbor_pos[0]].nil? ||
+      board[neighbor_pos[0]][neighbor_pos[1]].nil? ||
+      neighbor_pos[0] < 0 || neighbor_pos[1] < 0
         neighbors << neighbor_pos
       end
     end
@@ -76,7 +78,8 @@ class Board
   end
 
   def render
-    board.each{|row| p row.map {|cell| cell.value}}
+    board.each{|row| puts row.map {|cell| cell.value}.join("\t") }
+    nil
   end
 
   def inspect

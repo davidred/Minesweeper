@@ -22,9 +22,9 @@ class Minesweeper
       game_board.render
       take_turn
     end
-    
+
     game_board.render
-    puts 
+    puts
     puts "You #{win_state}!"
   end
 
@@ -90,7 +90,7 @@ class Minesweeper
   def over?
     @win_state = "won" if won?
     @win_state = "lost"  if lost?
-    
+
     win_state
   end
 
@@ -119,8 +119,16 @@ if __FILE__ == $PROGRAM_NAME
     g = Minesweeper.new
     g.run
   else
-    contents = File.read(ARGV[0]).chomp
-   
+    filepath = ARGV[0]
+    begin
+      contents = File.read(filepath).chomp
+    rescue SystemCallError
+      puts "filepath does not exist"
+      p "Please enter valid filepath"
+      filepath = $stdin.gets.chomp
+      retry
+    end
+
     if contents.empty?
       g = Minesweeper.new(ARGV[0])
       g.run
@@ -128,6 +136,5 @@ if __FILE__ == $PROGRAM_NAME
       g = YAML::load(contents)
       g.run
     end
-  
   end
 end

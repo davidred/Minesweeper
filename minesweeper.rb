@@ -22,6 +22,10 @@ class Minesweeper
       game_board.render
       take_turn
     end
+    
+    game_board.render
+    puts 
+    puts "You #{win_state}!"
   end
 
   def take_turn
@@ -50,6 +54,7 @@ class Minesweeper
         move = $stdin.gets.chomp
       end
     end
+    puts
     pos = [move[2].to_i,move[4].to_i]
     move_type = move[0]
     [move_type, pos]
@@ -83,9 +88,9 @@ class Minesweeper
   end
 
   def over?
-    win_state = "won" if won?
-    win_state = "lost"  if lost?
-    puts win_state
+    @win_state = "won" if won?
+    @win_state = "lost"  if lost?
+    
     win_state
   end
 
@@ -110,12 +115,19 @@ end
 
 if __FILE__ == $PROGRAM_NAME
 
-  contents = File.read(ARGV[0]).chomp
-  if contents.empty?
-    g = Minesweeper.new(ARGV[0])
+  if ARGV[0].nil?
+    g = Minesweeper.new
     g.run
   else
-    g = YAML::load(contents)
-    g.run
+    contents = File.read(ARGV[0]).chomp
+   
+    if contents.empty?
+      g = Minesweeper.new(ARGV[0])
+      g.run
+    else
+      g = YAML::load(contents)
+      g.run
+    end
+  
   end
 end
